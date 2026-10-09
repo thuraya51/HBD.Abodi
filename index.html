@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday My One &amp; Only</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --gold: #f8f8f6; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: 'Tajawal', system-ui, sans-serif;
+    color: #fff;
+    background:
+      radial-gradient(circle at 15% 10%, #000000 0%, transparent 50%),
+      radial-gradient(circle at 85% 90%, #000000 0%, transparent 45%),
+      #000000;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 15px;
+    overflow-x: hidden;
+  }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  .balloon {
+    position: fixed; bottom: -90px; font-size: 44px; z-index: 1;
+    animation: rise linear infinite; opacity: .9;
+  }
+  @keyframes rise { to { transform: translateY(-120vh) rotate(14deg); } }
+
+  main { position: relative; z-index: 2; width: 100%; max-width: 420px; text-align: center; }
+  .cake { font-size: 100px; display: inline-block; animation: bounce 2s ease-in-out infinite; }
+  a.cake { text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  @keyframes bounce { 50% { transform: translateY(-12px); } }
+  h1 { font-size: clamp(36px, 11vw, 54px); font-weight: 800; margin: 8px 0 6px; line-height: 1.4; }
+  h1 b { color: var(--gold); display: block; font-size: clamp(32px, 9vw, 44px); }
+  .sub { opacity: .85; margin-bottom: 28px; font-size: 18px; }
+
+  #openBtn {
+    font-family: inherit; font-size: 22px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #c1121f, #8f0101);
+    border: 0; border-radius: 999px; padding: 16px 36px; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(193, 18, 31, .5);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(1.06); } }
+  #openBtn:active { transform: scale(.96); }
+
+  .card {
+    display: none; margin-top: 8px; padding: 22px 20px;
+    background: rgba(255, 255, 255, .13);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, .25); border-radius: 22px;
+    animation: pop .7s ease both;
+  }
+  .card.show { display: block; }
+  @keyframes pop { from { opacity: 0; transform: translateY(20px) scale(.95); } to { opacity: 1; transform: none; } }
+  .card img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 16px; margin-bottom: 16px; }
+  #msg { font-size: 20px; line-height: 2; white-space: pre-line; }
+  .again { margin-top: 16px; font-family: inherit; font-size: 16px; color: #fff; background: transparent;
+    border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; padding: 8px 20px; cursor: pointer; }
+  .ytbox { position: fixed; right: 0; bottom: 0; width: 200px; height: 200px; opacity: .01; pointer-events: none; z-index: 0; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<main>
+  <a class="cake" id="cakeLink" target="_blank" rel="noopener">🎂</a>
+  <h1>Happy Birthday <b id="name"></b></h1>
+  <p class="sub">عندي لك مفاجأة صغيرة 🎁</p>
+
+  <button id="openBtn">افتح هديتك 🎁</button>
+
+  <div class="card" id="card">
+    <img id="photo" src="photo.jpg" alt="" onerror="this.remove()">
+    <p id="msg"></p>
+    <button class="again" id="againBtn">🎉 مرة ثانية</button>
+  </div>
+</main>
+
+<div class="ytbox"><div id="ytplayer"></div></div>
+<audio id="song" src="song.mp3" loop preload="none"></audio>
+
+<script>
+  const NAME = "My One & Only";
+  const YOUTUBE_URL = "https://youtu.be/C11sKQphVwk?si=_GmOyTfh1ufpsBo-";
+  const MESSAGE =
+`كل عام وأنت بخير يا قلبي وسندي 🤍
+كل يوم أتأكد إني اخترت الشخص الصح
+اللي يبني معاي الحياة بحب وأمان
+خمس سنين مرّينا فيها بالحلو والمُرّ، وصارت أيامي أحلى بوجودك، شكراً لأنك زوجي وحبيبي والصدر الحنون اللي أستند عليه كل ما احتجت
+الله يجعل سنواتك الجاية كلها خير ونجاح وصحة ويديمك لي
+كل عام وأنت حُبي الأول والأخير
+أحبك ❤️`;
+
+  document.getElementById('name').textContent = NAME;
+  document.getElementById('msg').textContent = MESSAGE;
+
+  // رابط الكيكة + صوت الأغنية
+  function getYouTubeId(u) {
+    const m = (u || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+  const VIDEO_ID = getYouTubeId(YOUTUBE_URL);
+  const cakeLink = document.getElementById('cakeLink');
+  if (VIDEO_ID) cakeLink.href = YOUTUBE_URL;
+
+  let ytPlayer = null, ytReady = false, unlocked = false;
+
+  // المتصفحات تمنع الصوت قبل أول لمسة، فالأغنية تبدأ صامتة أول ما تفتح الصفحة
+  // ويشتغل صوتها مع أول لمسة في أي مكان
+  if (VIDEO_ID) {
+    window.onYouTubeIframeAPIReady = function () {
+      ytPlayer = new YT.Player('ytplayer', {
+        width: 200, height: 200, videoId: VIDEO_ID,
+        playerVars: { autoplay: 1, mute: 1, playsinline: 1, loop: 1, playlist: VIDEO_ID, controls: 0, rel: 0 },
+        events: {
+          onReady: function (e) {
+            ytReady = true;
+            e.target.mute();
+            e.target.playVideo();
+            if (unlocked) unmuteAndPlay();
+          }
+        }
+      });
+    };
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  }
+  function unmuteAndPlay() {
+    if (!ytReady) return;
+    ytPlayer.unMute();
+    ytPlayer.setVolume(100);
+    ytPlayer.playVideo();
+  }
+  function playMusic() {
+    unlocked = true;
+    if (VIDEO_ID) {
+      unmuteAndPlay();
+    } else {
+      song.play().catch(function () {});
+    }
+  }
+  const unlockEvents = ['click', 'touchend', 'keydown'];
+  function unlockAudio(e) {
+    if (e.target && e.target.closest && e.target.closest('#cakeLink')) return;
+    unlockEvents.forEach(function (ev) { document.removeEventListener(ev, unlockAudio); });
+    playMusic();
+  }
+  unlockEvents.forEach(function (ev) { document.addEventListener(ev, unlockAudio); });
+
+  // الضغط على الكيكة يفتح اليوتيوب، فنوقف الأغنية هنا مؤقتاً ونكملها إذا رجع للصفحة
+  cakeLink.addEventListener('click', function () {
+    if (ytReady) ytPlayer.pauseVideo();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && unlocked && ytReady) ytPlayer.playVideo();
+  });
+
+  // بالونات عائمة
+  const balloonEmojis = ['🎈', '🎈', '🎉', '✨', '🎈'];
+  for (let i = 0; i < 15; i++) {
+    const b = document.createElement('span');
+    b.className = 'balloon';
+    b.textContent = balloonEmojis[i % balloonEmojis.length];
+    b.style.left = (Math.random() * 92) + 'vw';
+    b.style.animationDuration = (9 + Math.random() * 8) + 's';
+    b.style.animationDelay = (-Math.random() * 12) + 's';
+    document.body.appendChild(b);
+  }
+
+  // قصاصات ملونة
+  const cv = document.getElementById('confetti');
+  const ctx = cv.getContext('2d');
+  let W, H, parts = [];
+  function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  addEventListener('resize', resize); resize();
+  const colors = ['#ffd166', '#ff6b9d', '#6bd5ff', '#9dff8a', '#ffffff'];
+
+  function burst(n) {
+    for (let i = 0; i < n; i++) {
+      parts.push({
+        x: W / 2, y: H * 0.45,
+        vx: (Math.random() - .5) * 15, vy: Math.random() * -15 - 4,
+        s: Math.random() * 8 + 5, r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+        c: colors[i % colors.length], life: 220 + Math.random() * 80
+      });
+    }
+  }
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    parts = parts.filter(p => p.life > 0 && p.y < H + 30);
+    for (const p of parts) {
+      p.vy += .28; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life--;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+      ctx.restore();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // فتح الهدية
+  const song = document.getElementById('song');
+  document.getElementById('openBtn').addEventListener('click', function () {
+    this.style.display = 'none';
+    document.getElementById('card').classList.add('show');
+    burst(180);
+    setTimeout(() => burst(120), 500);
+    playMusic();
+  });
+  document.getElementById('againBtn').addEventListener('click', () => burst(200));
+</script>
+</body>
+</html>
